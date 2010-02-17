@@ -24,7 +24,8 @@ import java.util.logging.Logger;
  * Synchronize "on an equivalence class"; i.e., if you wish to lock not a
  * specific string, but anything that equals that string, you may
  * 
- * <pre>equivalenceLock.lock("frank"); 
+ * <pre>EquivalenceLock<String> equivalenceLock = new EquivalenceLock<String>();
+equivalenceLock.lock("frank"); 
 try {
     // whatever 
 } finally {
@@ -42,26 +43,24 @@ public class EquivalenceLock<T>
 
 	public void lock(final T ticket) throws InterruptedException
 	{
+		final String threadName = DEBUG ? Thread.currentThread().getName() : null;
 		if (DEBUG)
-			LOG.finest(Thread.currentThread().getName() + " acquiring lock on tickets");
+			LOG.finest(threadName + " acquiring lock on tickets");
 
 		synchronized (slots)
 		{
 			if (DEBUG)
-				LOG
-						.finest(Thread.currentThread().getName()
-								+ " acquired lock on tickets");
+				LOG.finest(threadName + " acquired lock on tickets");
 
 			while (slots.contains(ticket))
 			{
 				if (DEBUG)
-					LOG.finest(Thread.currentThread().getName() + " waiting to toss "
-							+ ticket);
+					LOG.finest(threadName + " waiting to toss " + ticket);
 				slots.wait();
 			}
 
 			if (DEBUG)
-				LOG.finest(Thread.currentThread().getName() + " accepting " + ticket);
+				LOG.finest(threadName + " accepting " + ticket);
 			slots.add(ticket);
 		}
 	}
